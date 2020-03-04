@@ -1,7 +1,7 @@
 import React from "react";
 import { TextInput, View, Text } from "react-native";
 
-export default ImputField = props => {
+export default InputField = props => {
   return (
     <View>
       <TextInput
