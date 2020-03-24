@@ -1,18 +1,16 @@
 import { db } from "../config/fireBaseConfig";
 
-export const getData = async () => {
-  let result = {};
+export const getProductDataSet = () => {
+  let result = {
+    data: [],
+    isLoading: true
+  };
   console.log("get data");
   try {
-    let loading = false;
     let productsRef = db.ref("/products");
-    console.log(productsRef);
     productsRef.on("value", snapshot => {
-      console.log(snapshot);
-      loading = true;
-      let data = [];
       snapshot.forEach(child => {
-        data.push({
+        result.data.push({
           name: child.val().name,
           color: child.val().color,
           producer: child.val().producer,
@@ -21,9 +19,8 @@ export const getData = async () => {
           id: child.key
         });
       });
-      console.log(data);
-      loading = false;
-      result = { data, loading };
+      result.isLoading = false;
+      console.log(result);
       return result;
     });
   } catch (e) {

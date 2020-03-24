@@ -11,7 +11,7 @@ import { Container } from "native-base";
 
 import AppNavigator from "./src/navigation/AppNavigator";
 
-YellowBox.ignoreWarnings(["Setting a timer"]);
+YellowBox.ignoreWarnings(["Setting a timer", "Remote debugger"]);
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);

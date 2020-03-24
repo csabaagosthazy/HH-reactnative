@@ -10,8 +10,7 @@ import {
   Text,
   FlatList,
   ActivityIndicator,
-  TouchableOpacity,
-  Alert
+  TouchableOpacity
 } from "react-native";
 
 export default class ProductsScreen extends Component {
@@ -94,36 +93,6 @@ export default class ProductsScreen extends Component {
     console.log(item);
     this.setState({ productFormOpen: visible, product: data });
   };
-  handleConfirm = () => {
-    Alert.alert(
-      "Confirm",
-      "Are you sure?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel"
-        },
-        { text: "OK", onPress: () => this.handleDelete(this.state.product) }
-      ],
-      { cancelable: false }
-    );
-  };
-
-  handleDelete = product => {
-    let itemToDelete = "";
-    product.map(attr => {
-      if (attr["key"] === "id") itemToDelete = attr["value"];
-    });
-
-    console.log(itemToDelete);
-
-    let updates = {};
-    updates["/products/" + itemToDelete] = null;
-
-    this.setState({ productFormOpen: false, product: "" });
-    return db.ref().update(updates);
-  };
 
   render() {
     if (this.state.loading) return <ActivityIndicator animating size="large" />;
@@ -138,7 +107,6 @@ export default class ProductsScreen extends Component {
           productFormOpen={this.state.productFormOpen}
           product={this.state.product}
           handleProductDetailsVisible={this.handleProductDetailsVisible}
-          handleConfirm={this.handleConfirm}
         />
         <TouchableOpacity style={styles.button} onPress={() => this.handleAddFormVisible(true)}>
           <Text>Add new</Text>
