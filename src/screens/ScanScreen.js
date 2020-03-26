@@ -23,8 +23,8 @@ export default class App extends Component {
   state = {
     orders: [],
     products: [],
-    ordersLoading: false,
-    productsLoading: false,
+    ordersLoading: true,
+    productsLoading: true,
     productFormOpen: false,
     product: "",
     orderFormOpen: false,
@@ -52,7 +52,6 @@ export default class App extends Component {
     try {
       let productsRef = db.ref("/products");
       productsRef.on("value", snapshot => {
-        this.setState({ productsLoading: true });
         let products = [];
         snapshot.forEach(child => {
           products.push({
@@ -78,7 +77,6 @@ export default class App extends Component {
     try {
       let productsRef = db.ref("/orders");
       productsRef.on("value", snapshot => {
-        this.setState({ ordersLoading: true });
         let orders = [];
         snapshot.forEach(child => {
           orders.push({
@@ -267,160 +265,3 @@ const styles = StyleSheet.create({
     fontSize: 18
   }
 });
-
-/* import React, { Component } from "react";
-import Scanner from "../components/Scanner";
-import { db } from "../config/fireBaseConfig";
-
-import { Container, Content } from "native-base";
-import * as Permissions from "expo-permissions";
-
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from "react-native";
-
-export default class ScanScreen extends Component {
-  static navigationOptions = {
-    title: "Scan"
-  };
-
-  state = {
-    hasCameraPermission: null,
-    productData: [],
-    productsLoading: false,
-    ordersData: [],
-    ordersLoading: false,
-    productScanOpen: false,
-    orderScanOpen: false,
-    productDetailsOpen: false,
-    findProduct: {},
-    orderDetailsOpen: false,
-    findOrder: {}
-  };
-
-  componentDidMount() {
-    this.getProductData();
-    this.getOrdersData();
-    this.requestCameraPermission();
-  }
-
-  getProductData = () => {
-    console.log("get product data");
-    try {
-      let productsRef = db.ref("/products");
-      console.log(productsRef);
-      productsRef.on("value", snapshot => {
-        console.log(snapshot);
-        this.setState({ productsLoading: true });
-        let data = [];
-        snapshot.forEach(child => {
-          data.push({
-            name: child.val().name,
-            color: child.val().color,
-            producer: child.val().producer,
-            price: Number(child.val().price),
-            amount: Number(child.val().amount),
-            id: child.key
-          });
-        });
-        console.log(data);
-        this.setState({ productData: data, productsLoading: false });
-      });
-    } catch (e) {
-      this.setState({ error: e });
-      console.log(e);
-    }
-  };
-
-  getOrdersData = () => {
-    console.log("Shipment get orders data");
-    try {
-      let productsRef = db.ref("/orders");
-      productsRef.on("value", snapshot => {
-        this.setState({ ordersLoading: true });
-        let orders = [];
-        snapshot.forEach(child => {
-          orders.push({
-            date: child.val().date,
-            items: child.val().items,
-            id: child.key
-          });
-        });
-        console.log("shipment", orders);
-        this.setState({ orders, ordersLoading: false });
-        console.log("data length: ", orders.length, this.state.ordersLoading);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  requestCameraPermission = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({
-      hasCameraPermission: status === "granted"
-    });
-  };
-
-  handleProductScanOpen = visible => {
-    this.setState({ productScanOpen: visible });
-  };
-
-  handleProductRequest = id => {
-    this.state.productData.map(data => {
-      if (data.id === id) {
-        this.setState({ findProduct: data });
-        console.log("product find: ", data);
-      }
-    });
-  };
-
-  render() {
-    const { hasCameraPermission, productScanOpen, ordersLoading, productsLoading } = this.state;
-
-    if (ordersLoading || productsLoading) return <ActivityIndicator animating size="large" />;
-
-    console.log("Scan screen loaded, state: ", this.state);
-    return (
-      <Container>
-        <Content>
-          <ScannerTest></ScannerTest>
-
-          <Scanner
-            visible={productScanOpen}
-            hasCameraPermission={hasCameraPermission}
-            handleVisible={this.handleProductScanOpen}
-            handleRequest={this.handleProductRequest}
-            itemName={"Product"}
-          ></Scanner>
-          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => this.handleProductScanOpen(true)}
-            >
-              <Text style={styles.text}>Scan product</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => this.props.navigation.navigate("Inventory")}
-            >
-              <Text style={styles.text}>Scan order</Text>
-            </TouchableOpacity>
-          </View>
-        </Content>
-      </Container>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-  imageContainer: { justifyContent: "center", alignItems: "center", paddingVertical: 20 },
-  button: {
-    alignItems: "center",
-    backgroundColor: "#43A047",
-    padding: 12,
-    width: 280,
-    marginTop: 12
-  },
-  image: { width: 200, height: 160 }
-});
- */

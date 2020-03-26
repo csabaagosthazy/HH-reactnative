@@ -13,7 +13,7 @@ export default class InventoryScreen extends Component {
   };
   state = {
     data: [],
-    loading: false,
+    loading: true,
     tableHead: ["name", "producer", "amount", "", ""],
     tableData: [],
     productFormOpen: false,
@@ -36,7 +36,6 @@ export default class InventoryScreen extends Component {
       console.log(productsRef);
       productsRef.on("value", snapshot => {
         console.log(snapshot);
-        this.setState({ loading: true });
         let data = [];
         snapshot.forEach(child => {
           data.push({
@@ -51,7 +50,7 @@ export default class InventoryScreen extends Component {
         console.log("inventory", data);
         this.setState({ data, loading: false });
         console.log("data length: ", data.length, this.state.loading);
-        if (data.length > 0 && this.state.loading === false) this.createTableData(data);
+        this.createTableData(data);
       });
     } catch (e) {
       console.log(e);

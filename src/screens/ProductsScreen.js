@@ -22,7 +22,7 @@ export default class ProductsScreen extends Component {
     addFormOpen: false,
     productFormOpen: false,
     product: "",
-    loading: false,
+    loading: true,
     data: [],
     error: null,
     text: "text"
@@ -40,7 +40,6 @@ export default class ProductsScreen extends Component {
       console.log(productsRef);
       productsRef.on("value", snapshot => {
         console.log(snapshot);
-        this.setState({ loading: true });
         let data = [];
         snapshot.forEach(child => {
           data.push({

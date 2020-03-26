@@ -20,8 +20,8 @@ export default class ShipmentsScreen extends Component {
   state = {
     orders: [],
     products: [],
-    ordersLoading: false,
-    productsLoading: false,
+    ordersLoading: true,
+    productsLoading: true,
     productCount: 0,
     tableHead: ["name", "producer", "amount", "", ""],
     tableData: [],
@@ -34,10 +34,9 @@ export default class ShipmentsScreen extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { ordersLoading, productsLoading, products, orders } = this.state;
-    const { products: prevProducts, orders: prevOrders } = prevState;
-    console.log("shipment updated: ");
-    if (products !== prevProducts || orders !== prevOrders) {
+    const { ordersLoading, productsLoading, products, orders, tableHead, tableData } = this.state;
+    const { ordersLoading: prevOrdersLoading, productsLoading: prevProductsLoading } = prevState;
+    if (ordersLoading !== prevOrdersLoading || productsLoading !== prevProductsLoading) {
       this.createTableData(orders, products);
     }
   }
@@ -47,7 +46,6 @@ export default class ShipmentsScreen extends Component {
     try {
       let productsRef = db.ref("/products");
       productsRef.on("value", snapshot => {
-        this.setState({ productsLoading: true });
         let products = [];
         let count = 0;
         snapshot.forEach(child => {
@@ -61,9 +59,7 @@ export default class ShipmentsScreen extends Component {
             id: child.key
           });
         });
-        console.log("shipment", products, count);
         this.setState({ products, productsLoading: false, productCount: count });
-        console.log("data length: ", products.length, this.state.productsLoading);
         /* if (products.length > 0 && this.state.productsLoading === false) this.createTableData(data); */
       });
     } catch (e) {
@@ -76,7 +72,6 @@ export default class ShipmentsScreen extends Component {
     try {
       let productsRef = db.ref("/orders");
       productsRef.on("value", snapshot => {
-        this.setState({ ordersLoading: true });
         let orders = [];
         snapshot.forEach(child => {
           orders.push({
@@ -85,9 +80,7 @@ export default class ShipmentsScreen extends Component {
             id: child.key
           });
         });
-        console.log("shipment", orders);
         this.setState({ orders, ordersLoading: false });
-        console.log("data length: ", orders.length, this.state.ordersLoading);
         /* if (data.length > 0 && this.state.productsLoading === false) this.createTableData(data); */
       });
     } catch (e) {
@@ -96,18 +89,21 @@ export default class ShipmentsScreen extends Component {
   };
 
   createTableData = (orders, products) => {
+    console.log("create table")
     let tableHead = ["Date"];
     let witdhArr = [100];
+    let productNames = [];
     products.map(product => {
       for (let [key, value] of Object.entries(product)) {
         if (key === "name") {
           tableHead.push(value);
+          productNames.push(value);
           witdhArr.push(50);
         }
       }
     });
     tableHead.push("");
-    witdhArr.push(50);
+    witdhArr.push(60);
 
     let tableData = [];
 
@@ -118,15 +114,17 @@ export default class ShipmentsScreen extends Component {
         if (key === "date") row.push(value);
 
         if (key === "items") {
-          value.map(item => {
-            let name = "";
-            let amount = "";
-            for (let [key, value] of Object.entries(item)) {
-              if (key === "name") name = value;
-              if (key === "amount") amount = value;
-            }
-            if (this.state.tableHead.includes(name)) row.push(amount);
-          });
+
+          productNames.map(pName => {
+            let amount = 0;
+            value.map(item => {
+              if(item.name === pName){
+                amount = item.amount;
+              }
+            })
+            row.push(amount);
+          })
+          
         }
       }
       row.push("");
@@ -152,8 +150,6 @@ export default class ShipmentsScreen extends Component {
   };
   handleDelete = index => {
     let itemToDelete = this.state.orders[index]["id"];
-
-    console.log(itemToDelete);
 
     let updates = {};
     updates["/orders/" + itemToDelete] = null;
@@ -232,6 +228,6 @@ const styles = StyleSheet.create({
   head: { height: 40, backgroundColor: "#00bfff" },
   text: { margin: 6, alignSelf: "center" },
   row: { flexDirection: "row", backgroundColor: "#90ee90" },
-  btn: { width: 40, height: 18, backgroundColor: "#ffa500", borderRadius: 2, alignSelf: "center" },
+  btn: { width: 50, height: 18, backgroundColor: "#ffa500", borderRadius: 2, alignSelf: "center" },
   btnText: { textAlign: "center", color: "#fff" }
 });

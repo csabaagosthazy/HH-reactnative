@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   head: { height: 40, backgroundColor: "#00bfff" },
   text: { margin: 6, alignSelf: "center" },
   row: { flexDirection: "row", backgroundColor: "#90ee90", width: "auto" },
-  btn: { width: 40, height: 18, backgroundColor: "#ffa500", borderRadius: 2 },
+  btn: { width: 50, height: 18, backgroundColor: "#ffa500", borderRadius: 2, alignSelf: "center" },
   btnText: { textAlign: "center", color: "#fff" },
   disabledSaveButton: {
     alignItems: "center",
