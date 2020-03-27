@@ -44,12 +44,6 @@ export default class ProductAddForm extends Component {
     this.setState({ data, errors });
   };
 
-  doSubmit = () => {
-    console.log("Submit");
-    this.props.handleSave(this.state.data);
-    this.handleClose();
-  };
-
   validate = () => {
     const options = { abortEarly: false };
     const { error } = Joi.validate(this.state.data, this.joiSchema, options);
@@ -87,13 +81,20 @@ export default class ProductAddForm extends Component {
     this.setState({ errors: errors || {} });
     if (errors) return;
 
-    this.doSubmit();
+    this.doSubmit(this.state.data);
   };
+
+  doSubmit = (data) => {
+    console.log("Submit");
+    this.props.handleSave(data);
+    this.handleClose();
+  };
+
   handleClose = () => {
     const { addFormOpen, handleAddFormVisible } = this.props;
     this.setState({
       data: { name: "", color: "", producer: "", price: "", amount: "" },
-      saveButtonDisabled: false,
+      saveButtonDisabled: true,
       errors: {},
       isErrorAtField: {}
     });

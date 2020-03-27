@@ -84,7 +84,7 @@ export default class InventoryScreen extends Component {
       items
     };
 
-    return db.ref().update(updates);
+    db.ref().update(updates);
   };
   //name, producer, amount
   createTableData = input => {

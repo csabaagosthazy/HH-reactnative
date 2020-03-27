@@ -76,7 +76,7 @@ export default class ProductsScreen extends Component {
       amount
     };
 
-    return db.ref().update(updates);
+    db.ref().update(updates);
   };
   handleAddFormVisible = visible => {
     this.setState({ addFormOpen: visible });
