@@ -25,6 +25,7 @@ export default class InventoryDialog extends Component {
     return (
       <Dialog
         width={0.9}
+        height={0.9}
         rounded
         actionsBordered
         visible={visible}

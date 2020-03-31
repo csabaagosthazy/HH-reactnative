@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: 30
   },
   dataWrapper: { marginTop: -1 },
-  tableContainer: { marginBottom: 20, height: "35%" },
+  tableContainer: { marginBottom: 20, height: "30%" },
   head: { height: 40, backgroundColor: "#00bfff" },
   text: { margin: 6, alignSelf: "center" },
   row: { flexDirection: "row", backgroundColor: "#90ee90", width: "auto" },

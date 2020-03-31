@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { db } from "../config/fireBaseConfig";
-import { getData } from "../utils/databaseUtils";
+import { getProductDataSet } from "../utils/databaseUtils";
 import ProductAddForm from "../components/ProductAddForm";
 import ProductDetails from "../components/ProductDetails";
 
@@ -28,37 +28,31 @@ export default class ProductsScreen extends Component {
     text: "text"
   };
 
-  componentDidMount() {
-    this.getData();
-    console.log(this.state);
-  }
-
-  getData = () => {
-    console.log("get data");
-    try {
-      let productsRef = db.ref("/products");
-      console.log(productsRef);
-      productsRef.on("value", snapshot => {
-        console.log(snapshot);
-        let data = [];
-        snapshot.forEach(child => {
-          data.push({
-            name: child.val().name,
-            color: child.val().color,
-            producer: child.val().producer,
-            price: Number(child.val().price),
-            amount: Number(child.val().amount),
-            id: child.key
-          });
-        });
-        console.log(data);
-        this.setState({ data, loading: false });
-      });
-    } catch (e) {
-      this.setState({ error: e });
-      console.log(e);
-    }
+  async componentDidMount() {
+    await getProductDataSet().then(res => {
+      this.setState({data: res.data, loading: res.isLoading});
+    });
+    
   };
+
+  async componentDidUpdate() {
+    await getProductDataSet().then(res => {
+//until only save and delete methods, in case of modification, it needs to compare the content of arrays 
+      if(res.data.length !== this.state.data.length){
+        console.log("if statement: ",res.data, this.state.data);
+        this.setState({data: res.data, loading: res.isLoading});
+      }
+    });
+
+  }
+ 
+  productSubmitted = async (data) => {
+    console.log("product submitted");
+    this.saveData(data);
+    await getProductDataSet().then(res => {
+      this.setState({data: res.data, loading: res.isLoading});
+    });
+  }
 
   saveData = ({ name, color, producer, price, amount }) => {
     console.log("savedata");

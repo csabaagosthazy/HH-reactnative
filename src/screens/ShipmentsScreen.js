@@ -11,6 +11,7 @@ import {
 import { Table, TableWrapper, Row, Cell } from "react-native-table-component";
 
 import { db } from "../config/fireBaseConfig";
+import { getProductDataSet, getOrderDataSet } from "../utils/databaseUtils";
 
 export default class ShipmentsScreen extends Component {
   static navigationOptions = {
@@ -25,74 +26,45 @@ export default class ShipmentsScreen extends Component {
     productCount: 0,
     tableHead: ["name", "producer", "amount", "", ""],
     tableData: [],
-    cellWidth: []
+    cellWidth: [],
+    updated: false
   };
 
-  componentDidMount() {
-    this.getProductsData();
-    this.getOrdersData();
-  }
+  async componentDidMount() {
+    await getProductDataSet().then(res => {
+      console.log("products: ", res);
+      this.setState({products: res.data, productsLoading: res.isLoading});
+    });
+    await getOrderDataSet().then(res => {
+      console.log("orders: ", res);
+      this.setState({orders: res.data, ordersLoading: res.isLoading});
+    });
 
-  componentDidUpdate(prevProps, prevState) {
-    const { ordersLoading, productsLoading, products, orders, tableHead, tableData } = this.state;
+    
+  };
+
+  async componentDidUpdate(prevProps, prevState) {
+    const { ordersLoading, productsLoading, products, orders, updated, tableHead, tableData } = this.state;
     const { ordersLoading: prevOrdersLoading, productsLoading: prevProductsLoading } = prevState;
+    console.log("updated: ", updated);
     if (ordersLoading !== prevOrdersLoading || productsLoading !== prevProductsLoading) {
       this.createTableData(orders, products);
     }
+    if(updated){
+      await getOrderDataSet().then(res => {
+        console.log("orders: ", res);
+        this.setState({orders: res.data, ordersLoading: res.isLoading, updated: false});
+        this.createTableData(res.data, products);
+      });
+    }
   }
-
-  getProductsData = () => {
-    console.log("Shipment get product data");
-    try {
-      let productsRef = db.ref("/products");
-      productsRef.on("value", snapshot => {
-        let products = [];
-        let count = 0;
-        snapshot.forEach(child => {
-          count++;
-          products.push({
-            name: child.val().name,
-            color: child.val().color,
-            producer: child.val().producer,
-            price: Number(child.val().price),
-            amount: Number(child.val().amount),
-            id: child.key
-          });
-        });
-        this.setState({ products, productsLoading: false, productCount: count });
-        /* if (products.length > 0 && this.state.productsLoading === false) this.createTableData(data); */
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  getOrdersData = () => {
-    console.log("Shipment get orders data");
-    try {
-      let productsRef = db.ref("/orders");
-      productsRef.on("value", snapshot => {
-        let orders = [];
-        snapshot.forEach(child => {
-          orders.push({
-            date: child.val().date,
-            items: child.val().items,
-            id: child.key
-          });
-        });
-        this.setState({ orders, ordersLoading: false });
-        /* if (data.length > 0 && this.state.productsLoading === false) this.createTableData(data); */
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  };
 
   createTableData = (orders, products) => {
     console.log("create table")
     let tableHead = ["Date"];
     let witdhArr = [100];
     let productNames = [];
+    let count = 0;
     products.map(product => {
       for (let [key, value] of Object.entries(product)) {
         if (key === "name") {
@@ -101,6 +73,7 @@ export default class ShipmentsScreen extends Component {
           witdhArr.push(50);
         }
       }
+      count ++;
     });
     tableHead.push("");
     witdhArr.push(60);
@@ -130,7 +103,7 @@ export default class ShipmentsScreen extends Component {
       row.push("");
       tableData.push(row);
     });
-    this.setState({ tableHead, tableData, cellWidth: witdhArr });
+    this.setState({ tableHead, tableData, cellWidth: witdhArr, productCount: count });
   };
 
   handleConfirm = index => {
@@ -153,7 +126,8 @@ export default class ShipmentsScreen extends Component {
 
     let updates = {};
     updates["/orders/" + itemToDelete] = null;
-    return db.ref().update(updates);
+    db.ref().update(updates);
+    this.setState({updated: true});
   };
 
   render() {

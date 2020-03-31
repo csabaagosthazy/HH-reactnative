@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, ActivityIndicator, TouchableOpacity } from "rea
 import { Table, TableWrapper, Row, Cell } from "react-native-table-component";
 
 import { db } from "../config/fireBaseConfig";
+import { getProductDataSet } from "../utils/databaseUtils";
 import ProductDetails from "../components/ProductDetails";
 import InventoryDialog from "../components/InventoryDialog";
 import CreateOrderForm from "../components/CreateOrderForm";
@@ -22,40 +23,33 @@ export default class InventoryScreen extends Component {
     productToEdit: "",
     productAmount: 0,
     createOrderVisible: false,
-    orderToCreate: []
+    orderToCreate: [],
+    updated: false
   };
 
-  componentDidMount() {
-    this.getData();
+  async componentDidMount() {
+    await getProductDataSet().then(res => {
+      this.setState({data: res.data, loading: res.isLoading});
+      this.createTableData(res.data);
+    })
+  };
+
+  async componentDidUpdate() {
+    const {data, updated} = this.state;
+    await getProductDataSet().then(res => {
+      if(res.data.length !== data.length){
+        console.log("if statement: ",res.data, data);
+        this.setState({data: res.data, loading: res.isLoading});
+        this.createTableData(res.data);
+      }
+      if(updated){
+        this.setState({data: res.data, loading: res.isLoading, updated: false});
+        this.createTableData(res.data);
+      }
+
+    });
+
   }
-
-  getData = () => {
-    console.log("Inventory get data");
-    try {
-      let productsRef = db.ref("/products");
-      console.log(productsRef);
-      productsRef.on("value", snapshot => {
-        console.log(snapshot);
-        let data = [];
-        snapshot.forEach(child => {
-          data.push({
-            name: child.val().name,
-            color: child.val().color,
-            producer: child.val().producer,
-            price: Number(child.val().price),
-            amount: Number(child.val().amount),
-            id: child.key
-          });
-        });
-        console.log("inventory", data);
-        this.setState({ data, loading: false });
-        console.log("data length: ", data.length, this.state.loading);
-        this.createTableData(data);
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  };
   updateData = () => {
     const { productToEdit: item, productAmount } = this.state;
     let itemToUpdate = {};
@@ -68,6 +62,7 @@ export default class InventoryScreen extends Component {
     };
 
     db.ref().update(itemToUpdate);
+    this.setState({updated: true})
   };
 
   saveData = (date, items) => {
